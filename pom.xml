@@ -20,7 +20,7 @@
     </licenses>
 
     <scm>
-        <url>https://github.com/Megaprog//stream-util</url>
+        <url>https://github.com/Megaprog/stream-util</url>
         <connection>scm:git:https://github.com/Megaprog/stream-util.git</connection>
         <tag>stream-util-1.0</tag>
     </scm>
