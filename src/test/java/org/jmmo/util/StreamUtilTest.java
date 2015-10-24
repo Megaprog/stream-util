@@ -2,13 +2,18 @@ package org.jmmo.util;
 
 import org.junit.Test;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class StreamUtilTest {
 
@@ -34,5 +39,15 @@ public class StreamUtilTest {
 
         final RuntimeException re = new RuntimeException(e);
         assertEquals(Arrays.asList(re, e), StreamUtil.causes(re).collect(Collectors.toList()));
+    }
+
+    @Test
+    public void testFiles() throws Exception {
+        final Path dir = Paths.get("target", "test-classes", "files");
+
+        final List<Path> files = StreamUtil.files(dir, "*.txt").collect(Collectors.toList());
+
+        assertThat(files, hasSize(2));
+        assertThat(files, containsInAnyOrder(dir.resolve("text.txt"), dir.resolve("sub").resolve("sub.txt")));
     }
 }
