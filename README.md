@@ -19,7 +19,15 @@ Or download the latest build at:
 
 ## How to use it?
 
+To create stream from supplier function:
+
 ```java
 Stream<Object> stream = StreamUtil.supply(() -> hasData() ? read() : null);
+```
+  
+To create files stream (all files in directory and subdirectories) :
+
+```java
+Stream<Path> files = StreamUtil.files("myDirectory");
 ```
     
