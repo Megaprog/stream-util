@@ -6,12 +6,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -45,9 +45,8 @@ public class StreamUtilTest {
     public void testFiles() throws Exception {
         final Path dir = Paths.get("target", "test-classes", "files");
 
-        final List<Path> files = StreamUtil.files(dir, "*.txt").collect(Collectors.toList());
+        final Stream<Path> files = StreamUtil.files(dir, "*.txt");
 
-        assertThat(files, hasSize(2));
-        assertThat(files, containsInAnyOrder(dir.resolve("text.txt"), dir.resolve("sub").resolve("sub.txt")));
+        assertThat(files.collect(Collectors.toList()), containsInAnyOrder(dir.resolve("text.txt"), dir.resolve("sub").resolve("sub.txt")));
     }
 }
