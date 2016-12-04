@@ -2,11 +2,13 @@ package org.jmmo.util;
 
 import org.junit.Test;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -48,5 +50,22 @@ public class StreamUtilTest {
         final Stream<Path> files = StreamUtil.files(dir, "*.txt");
 
         assertThat(files.collect(Collectors.toList()), containsInAnyOrder(dir.resolve("text.txt"), dir.resolve("sub").resolve("sub.txt")));
+    }
+
+    void method(int a, String b) throws IOException, InterruptedException { }
+    boolean isSomething(int a, String b) throws IOException, TimeoutException { return true; }
+
+    @Test
+    public void testUnchecked_Throw() throws Exception {
+        Stream.of(1)
+                .filter(i1 -> StreamUtil.unchecked(() -> isSomething(i1, "1")))
+                .forEach(i2 -> StreamUtil.unchecked(() -> method(i2, "2")));
+    }
+
+    @Test
+    public void testUnchecked_NotThrow() throws Exception {
+        Stream.of(1)
+                .filter(i1 -> { try { return isSomething(i1, "1"); } catch (Exception ex) { throw new RuntimeException(ex); } })
+                .forEach(i2 -> { try { method(i2, "2"); } catch (Exception ex) { throw new RuntimeException(ex); } });
     }
 }
