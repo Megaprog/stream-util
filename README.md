@@ -10,7 +10,7 @@ You can use it as a maven dependency:
 <dependency>
     <groupId>org.jmmo</groupId>
     <artifactId>stream-util</artifactId>
-    <version>1.2</version>
+    <version>1.3</version>
 </dependency>
 ```
 
