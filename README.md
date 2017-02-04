@@ -39,9 +39,9 @@ void method(int a, String b) throws IOException, InterruptedException { }
 boolean isSomething(int a, String b) throws IOException, TimeoutException { return true; }
 
 public void testUnchecked_Throw() throws Exception {
- Stream.of(1)
-         .filter(i1 -> StreamUtil.unchecked(() -> isSomething(i1, "1")))
-         .forEach(i2 -> StreamUtil.unchecked(() -> method(i2, "2")));
+    Stream.of(1)
+        .filter(i1 -> StreamUtil.unchecked(() -> isSomething(i1, "1")))
+        .forEach(i2 -> StreamUtil.unchecked(() -> method(i2, "2")));
 }
 ```
 
