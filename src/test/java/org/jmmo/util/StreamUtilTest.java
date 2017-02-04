@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
@@ -67,5 +68,13 @@ public class StreamUtilTest {
         Stream.of(1)
                 .filter(i1 -> { try { return isSomething(i1, "1"); } catch (Exception ex) { throw new RuntimeException(ex); } })
                 .forEach(i2 -> { try { method(i2, "2"); } catch (Exception ex) { throw new RuntimeException(ex); } });
+    }
+
+    @Test
+    public void testLazyToString() throws Exception {
+        assertEquals("-ok-", MessageFormat.format("-{0}-", new LazyToString(() -> "ok")));
+        assertEquals("-5-", MessageFormat.format("-{0}-", new LazyToString(() -> 5)));
+        assertEquals("-true-", MessageFormat.format("-{0}-", new LazyToString(() -> true)));
+        assertEquals("-null-", MessageFormat.format("-{0}-", new LazyToString(() -> null)));
     }
 }
