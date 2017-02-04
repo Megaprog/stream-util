@@ -31,7 +31,7 @@ To create files stream (all files in directory and subdirectories):
 Stream<Path> files = StreamUtil.files("myDirectory");
 ```
 
-To logging expensive string expressions:
+To logging expensive expressions:
  
 ```java
 log.debug("Debugging of {}", new LazyToString(() -> "some expensive expression"));
