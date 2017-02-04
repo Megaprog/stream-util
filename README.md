@@ -25,9 +25,14 @@ To create stream from supplier function:
 Stream<Object> stream = StreamUtil.supply(() -> hasData() ? read() : null);
 ```
   
-To create files stream (all files in directory and subdirectories) :
+To create files stream (all files in directory and subdirectories):
 
 ```java
 Stream<Path> files = StreamUtil.files("myDirectory");
 ```
-    
+
+To logging expensive string expressions:
+ 
+```java
+log.debug("Debugging of {}", new LazyToString(() -> "some expensive expression"));
+```
