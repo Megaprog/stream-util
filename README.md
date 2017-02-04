@@ -31,6 +31,20 @@ To create files stream (all files in directory and subdirectories):
 Stream<Path> files = StreamUtil.files("myDirectory");
 ```
 
+To wrap lambdas throws checked exceptions:
+ 
+```java
+void method(int a, String b) throws IOException, InterruptedException { }
+
+boolean isSomething(int a, String b) throws IOException, TimeoutException { return true; }
+
+public void testUnchecked_Throw() throws Exception {
+ Stream.of(1)
+         .filter(i1 -> StreamUtil.unchecked(() -> isSomething(i1, "1")))
+         .forEach(i2 -> StreamUtil.unchecked(() -> method(i2, "2")));
+}
+```
+
 To logging expensive expressions:
  
 ```java
