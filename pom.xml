@@ -95,7 +95,7 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.5.3</version>
                 <configuration>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <releaseProfiles>release</releaseProfiles>
                     <goals>deploy nexus-staging:release</goals>
                 </configuration>
             </plugin>
@@ -105,7 +105,7 @@
 
     <profiles>
         <profile>
-            <id>release-profile</id>
+            <id>release</id>
             <build>
                 <plugins>
 
