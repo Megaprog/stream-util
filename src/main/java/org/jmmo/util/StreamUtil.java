@@ -20,7 +20,7 @@ public class StreamUtil {
     private StreamUtil() {}
 
     public static <T> Stream<T> optional(Optional<T> optional) {
-        return optional.isPresent() ? Stream.of(optional.get()) : Stream.<T>empty();
+        return optional.map(Stream::of).orElseGet(Stream::empty);
     }
 
     public static <T> Stream<T> supply(Supplier<T> supplier) {
