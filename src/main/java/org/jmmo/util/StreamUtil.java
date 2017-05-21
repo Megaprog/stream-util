@@ -145,4 +145,32 @@ public class StreamUtil {
             sneakyThrow(ex);
         }
     }
+
+    /**
+     * Prevent necessity to check exceptions from lambdas that don't return any result,
+     * then return null of required type
+     * @param runnable some lambda throwing checked exception
+     * @param <T> return value type
+     * @return null value of T type
+     */
+    public static <T> T uncheckedResult(ThrowableRunnable runnable) {
+        try {
+            runnable.run();
+        } catch (Exception ex) {
+            sneakyThrow(ex);
+        }
+
+        return null;
+    }
+
+    /**
+     * Executes runnable then return null of required type
+     * @param runnable some code
+     * @param <T> return value type
+     * @return null value of T type
+     */
+    public static <T> T result(Runnable runnable) {
+        runnable.run();
+        return null;
+    }
 }

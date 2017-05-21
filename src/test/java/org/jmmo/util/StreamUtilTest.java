@@ -10,12 +10,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 public class StreamUtilTest {
@@ -76,5 +78,19 @@ public class StreamUtilTest {
         assertEquals("-5-", MessageFormat.format("-{0}-", new LazyToString(() -> 5)));
         assertEquals("-true-", MessageFormat.format("-{0}-", new LazyToString(() -> true)));
         assertEquals("-null-", MessageFormat.format("-{0}-", new LazyToString(() -> null)));
+    }
+
+    String wannaFunc(Function<Integer, String> function) {
+        return function.apply(1);
+    }
+
+    @Test
+    public void testResutl() throws Exception {
+        assertNull(wannaFunc((a) -> StreamUtil.result(() -> {})));
+    }
+
+    @Test
+    public void testUncheckedResutl() throws Exception {
+        assertNull(wannaFunc((a) -> StreamUtil.uncheckedResult(() -> method(1, "1"))));
     }
 }
