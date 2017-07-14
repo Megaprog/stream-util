@@ -19,8 +19,13 @@ import java.util.stream.StreamSupport;
 public class StreamUtil {
     private StreamUtil() {}
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static <T> Stream<T> optional(Optional<T> optional) {
         return optional.map(Stream::of).orElseGet(Stream::empty);
+    }
+
+    public static <T> Stream<T> nullable(T value) {
+        return value == null ? Stream.empty() : Stream.of(value);
     }
 
     public static <T> Stream<T> supply(Supplier<T> supplier) {
@@ -46,7 +51,7 @@ public class StreamUtil {
                     throw new NoSuchElementException();
                 }
             }
-        }, Spliterator.ORDERED | Spliterator.IMMUTABLE | Spliterator.NONNULL), false);
+        }, Spliterator.IMMUTABLE | Spliterator.NONNULL), false);
     }
 
     public static Stream<MatchResult> matchResults(Matcher matcher) {

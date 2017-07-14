@@ -1,5 +1,6 @@
 package org.jmmo.util;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -7,7 +8,9 @@ import java.util.Optional;
  * Mutable holder to make possible have a side effect inside lambdas
  * @param <T> type of a value that the holder holds
  */
-public class Holder<T> {
+public class Holder<T> implements Serializable {
+    private static final long serialVersionUID = 7632558169827026481L;
+
     private T value;
 
     public Holder() {
