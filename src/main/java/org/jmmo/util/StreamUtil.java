@@ -29,7 +29,7 @@ public class StreamUtil {
     }
 
     public static <T> Stream<T> fromIterator(Iterator<T> iterator) {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, 0), false);
+        return fromIterator(iterator, 0);
     }
 
     public static <T> Stream<T> fromIterator(Iterator<T> iterator, int characteristics) {
