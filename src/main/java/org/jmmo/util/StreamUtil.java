@@ -37,7 +37,7 @@ public class StreamUtil {
     }
 
     public static <T> Stream<T> supply(Supplier<T> supplier) {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new Iterator<T>() {
+        return fromIterator(new Iterator<T>() {
             boolean prepared;
             T current;
 
@@ -59,7 +59,7 @@ public class StreamUtil {
                     throw new NoSuchElementException();
                 }
             }
-        }, Spliterator.IMMUTABLE | Spliterator.NONNULL), false);
+        }, Spliterator.IMMUTABLE | Spliterator.NONNULL);
     }
 
     public static Stream<MatchResult> matchResults(Matcher matcher) {
@@ -93,7 +93,7 @@ public class StreamUtil {
      * Finds files within a given directory and its subdirectories.
      */
     public static Stream<Path> files(Path directory) {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new FilesIterator(directory), Spliterator.NONNULL), false);
+        return fromIterator(new FilesIterator(directory), Spliterator.NONNULL);
     }
 
     /**
@@ -101,7 +101,7 @@ public class StreamUtil {
      * The files are filtered by matching the String representation of their file names against the given globbing pattern.
      */
     public static Stream<Path> files(Path directory, String glob) {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new FilesIterator(directory, glob), Spliterator.NONNULL), false);
+        return fromIterator(new FilesIterator(directory, glob), Spliterator.NONNULL);
     }
 
     /**
@@ -109,7 +109,7 @@ public class StreamUtil {
      * The files are filtered by the given filter
      */
     public static Stream<Path> files(Path directory, DirectoryStream.Filter<Path> filter) {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new FilesIterator(filter, directory), Spliterator.NONNULL), false);
+        return fromIterator(new FilesIterator(filter, directory), Spliterator.NONNULL);
     }
 
     /**
