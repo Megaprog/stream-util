@@ -28,6 +28,14 @@ public class StreamUtil {
         return value == null ? Stream.empty() : Stream.of(value);
     }
 
+    public static <T> Stream<T> fromIterator(Iterator<T> iterator) {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, 0), false);
+    }
+
+    public static <T> Stream<T> fromIterator(Iterator<T> iterator, int characteristics) {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, characteristics), false);
+    }
+
     public static <T> Stream<T> supply(Supplier<T> supplier) {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new Iterator<T>() {
             boolean prepared;
@@ -169,6 +177,19 @@ public class StreamUtil {
     }
 
     /**
+     * Prevent necessity to check exceptions from lambdas that return some result and ignore result
+     * @param callable some lambda throwing checked exception
+     * @param <R> ignored result type
+     */
+    public static <R> void uncheckedIgnoreResult(Callable<R> callable) {
+        try {
+            callable.call();
+        } catch (Exception ex) {
+            sneakyThrow(ex);
+        }
+    }
+
+    /**
      * Executes runnable then return null of required type
      * @param runnable some code
      * @param <T> return value type
@@ -177,5 +198,14 @@ public class StreamUtil {
     public static <T> T result(Runnable runnable) {
         runnable.run();
         return null;
+    }
+
+    /**
+     * Executes something that returns result and ignore result
+     * @param supplier Something that returns result
+     * @param <T> ignored result type
+     */
+    public static <T> void ignoreResult(Supplier<T> supplier) {
+        supplier.get();
     }
 }
