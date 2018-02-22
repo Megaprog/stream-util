@@ -4,7 +4,7 @@
 
     <groupId>org.jmmo</groupId>
     <artifactId>stream-util</artifactId>
-    <version>1.7-SNAPSHOT</version>
+    <version>1.7</version>
     <packaging>jar</packaging>
 
     <name>Stream Utility</name>
@@ -22,7 +22,7 @@
     <scm>
         <url>https://github.com/Megaprog/stream-util</url>
         <connection>scm:git:https://github.com/Megaprog/stream-util.git</connection>
-        <tag>stream-util-1.0</tag>
+        <tag>stream-util-1.7</tag>
     </scm>
 
     <developers>
