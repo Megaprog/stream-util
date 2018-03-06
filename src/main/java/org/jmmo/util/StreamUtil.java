@@ -59,7 +59,7 @@ public class StreamUtil {
                     throw new NoSuchElementException();
                 }
             }
-        }, Spliterator.IMMUTABLE | Spliterator.NONNULL);
+        }, Spliterator.NONNULL);
     }
 
     public static Stream<MatchResult> matchResults(Matcher matcher) {
