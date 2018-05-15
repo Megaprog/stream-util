@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.concurrent.Callable;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
@@ -207,5 +208,39 @@ public class StreamUtil {
      */
     public static <T> void ignoreResult(Supplier<T> supplier) {
         supplier.get();
+    }
+
+    /**
+     * Maps iterator to iterator with another type by applying mapping function
+     * @param iterator source iterator
+     * @param mappingFunction function to map
+     * @param <T> source iterator type
+     * @param <R> result iterator type
+     */
+    public static <T, R> Iterator<R> iteratorMap(Iterator<T> iterator, Function<T, R> mappingFunction) {
+        return new Iterator<R>() {
+            @Override public boolean hasNext() {
+                return iterator.hasNext();
+            }
+
+            @Override public R next() {
+                return mappingFunction.apply(iterator.next());
+            }
+
+            @Override public void remove() {
+                iterator.remove();
+            }
+        };
+    }
+
+    /**
+     * Maps iteratable to iteratable with another type by applying mapping function
+     * @param iterable source iteratable
+     * @param mappingFunction function to map
+     * @param <T> source iteratable type
+     * @param <R> result iteratable type
+     */
+    public static <T, R> Iterable<R> iterableMap(Iterable<T> iterable, Function<T, R> mappingFunction) {
+        return () -> iteratorMap(iterable.iterator(), mappingFunction);
     }
 }
