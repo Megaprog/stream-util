@@ -4,11 +4,7 @@ import org.jmmo.util.impl.FilesIterator;
 
 import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Spliterator;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -213,18 +209,17 @@ public class StreamUtil {
     /**
      * Maps iterator to iterator with another type by applying mapping function
      * @param iterator source iterator
-     * @param mappingFunction function to map
-     * @param <T> source iterator type
-     * @param <R> result iterator type
+     * @param mapper function to apply to each element
+     * @return new iterator
      */
-    public static <T, R> Iterator<R> iteratorMap(Iterator<T> iterator, Function<T, R> mappingFunction) {
+    public static <T, R> Iterator<R> iteratorMap(Iterator<T> iterator, Function<? super T, ? extends R> mapper) {
         return new Iterator<R>() {
             @Override public boolean hasNext() {
                 return iterator.hasNext();
             }
 
             @Override public R next() {
-                return mappingFunction.apply(iterator.next());
+                return mapper.apply(iterator.next());
             }
 
             @Override public void remove() {
@@ -234,13 +229,59 @@ public class StreamUtil {
     }
 
     /**
-     * Maps iteratable to iteratable with another type by applying mapping function
-     * @param iterable source iteratable
-     * @param mappingFunction function to map
-     * @param <T> source iteratable type
-     * @param <R> result iteratable type
+     * Maps iteratable to iterable with another type by applying mapping function
+     * @param iterable source iterable
+     * @param mapper function to apply to each element
+     * @return new iterable
      */
-    public static <T, R> Iterable<R> iterableMap(Iterable<T> iterable, Function<T, R> mappingFunction) {
-        return () -> iteratorMap(iterable.iterator(), mappingFunction);
+    public static <T, R> Iterable<R> iterableMap(Iterable<T> iterable, Function<? super T, ? extends R> mapper) {
+        return () -> iteratorMap(iterable.iterator(), mapper);
+    }
+
+    /**
+     * Returns an iterator consisting of the results of replacing each element of
+     * this iterator with the contents of a mapped iterator produced by applying
+     * the provided mapping function to each element.
+     * @param iterator source iterator
+     * @param mapper function to apply to each element
+     * @return new iterator
+     */
+    public static <T, R> Iterator<R> iteratorFlatMap(Iterator<T> iterator, Function<? super T, ? extends Iterator<? extends R>> mapper) {
+        return new Iterator<R>() {
+            Iterator<? extends R> current = Collections.<R>emptyList().iterator();
+
+            @Override public boolean hasNext() {
+                if (current.hasNext()) {
+                    return true;
+                }
+
+                if (!iterator.hasNext()) {
+                    return false;
+                }
+
+                current = mapper.apply(iterator.next());
+                return hasNext();
+            }
+
+            @Override public R next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+
+                return current.next();
+            }
+        };
+    }
+
+    /**
+     * Returns an iterable consisting of the results of replacing each element of
+     * this iterable with the contents of a mapped iterable produced by applying
+     * the provided mapping function to each element.
+     * @param iterable source iterable
+     * @param mapper function to apply to each element
+     * @return new iterable
+     */
+    public static <T, R> Iterable<R> iterableFlatMap(Iterable<T> iterable, Function<? super T, ? extends Iterable<? extends R>> mapper) {
+        return () -> iteratorFlatMap(iterable.iterator(), t -> mapper.apply(t).iterator());
     }
 }
