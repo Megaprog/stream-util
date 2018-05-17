@@ -207,7 +207,8 @@ public class StreamUtil {
     }
 
     /**
-     * Maps iterator to iterator with another type by applying mapping function
+     * Returns an iterator consisting of the results of applying the given
+     * function to the elements of this iterator.
      * @param iterator source iterator
      * @param mapper function to apply to each element
      * @return new iterator
@@ -229,7 +230,8 @@ public class StreamUtil {
     }
 
     /**
-     * Maps iteratable to iterable with another type by applying mapping function
+     * Returns an iterable consisting of the results of applying the given
+     * function to the elements of this iterable.
      * @param iterable source iterable
      * @param mapper function to apply to each element
      * @return new iterable
