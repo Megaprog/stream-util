@@ -250,7 +250,7 @@ public class StreamUtil {
      */
     public static <T, R> Iterator<R> iteratorFlatMap(Iterator<T> iterator, Function<? super T, ? extends Iterator<? extends R>> mapper) {
         return new Iterator<R>() {
-            Iterator<? extends R> current = Collections.<R>emptyList().iterator();
+            Iterator<? extends R> current = Collections.emptyIterator();
 
             @Override public boolean hasNext() {
                 if (current.hasNext()) {
