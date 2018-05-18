@@ -268,6 +268,10 @@ public class StreamUtil {
             }
 
             @Override public void remove() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+
                 iterator.remove();
             }
         };
@@ -304,6 +308,14 @@ public class StreamUtil {
                 }
 
                 return current.next();
+            }
+
+            @Override public void remove() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+
+                current.remove();
             }
         };
     }
