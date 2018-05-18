@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
@@ -163,7 +164,7 @@ public class StreamUtil {
      * @param <T> return value type
      * @return null value of T type
      */
-    public static <T> T uncheckedResult(ThrowableRunnable runnable) {
+    public static <T> T uncheckedNull(ThrowableRunnable runnable) {
         try {
             runnable.run();
         } catch (Exception ex) {
@@ -178,7 +179,7 @@ public class StreamUtil {
      * @param callable some lambda throwing checked exception
      * @param <R> ignored result type
      */
-    public static <R> void uncheckedIgnoreResult(Callable<R> callable) {
+    public static <R> void uncheckedVoid(Callable<R> callable) {
         try {
             callable.call();
         } catch (Exception ex) {
@@ -202,7 +203,7 @@ public class StreamUtil {
      * @param supplier Something that returns result
      * @param <T> ignored result type
      */
-    public static <T> void ignoreResult(Supplier<T> supplier) {
+    public static <T> void resultVoid(Supplier<T> supplier) {
         supplier.get();
     }
 
@@ -230,14 +231,46 @@ public class StreamUtil {
     }
 
     /**
-     * Returns an iterable consisting of the results of applying the given
-     * function to the elements of this iterable.
-     * @param iterable source iterable
-     * @param mapper function to apply to each element
-     * @return new iterable
+     * Returns an iterator consisting of the elements of this stream that match
+     * the given predicate.
+     * @param iterator source iterator
+     * @param predicate predicate to apply to each element to determine if it should be included
+     * @return new iterator
      */
-    public static <T, R> Iterable<R> iterableMap(Iterable<T> iterable, Function<? super T, ? extends R> mapper) {
-        return () -> iteratorMap(iterable.iterator(), mapper);
+    public static <T> Iterator<T> iteratorFilter(Iterator<T> iterator, Predicate<? super T> predicate) {
+        return new Iterator<T>() {
+            T next;
+            boolean hasNext;
+
+            @Override public boolean hasNext() {
+                if (hasNext) {
+                    return true;
+                }
+
+                while (iterator.hasNext()) {
+                    next = iterator.next();
+                    if (predicate.test(next)) {
+                        hasNext = true;
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            @Override public T next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+
+                hasNext = false;
+                return next;
+            }
+
+            @Override public void remove() {
+                iterator.remove();
+            }
+        };
     }
 
     /**
@@ -273,17 +306,5 @@ public class StreamUtil {
                 return current.next();
             }
         };
-    }
-
-    /**
-     * Returns an iterable consisting of the results of replacing each element of
-     * this iterable with the contents of a mapped iterable produced by applying
-     * the provided mapping function to each element.
-     * @param iterable source iterable
-     * @param mapper function to apply to each element
-     * @return new iterable
-     */
-    public static <T, R> Iterable<R> iterableFlatMap(Iterable<T> iterable, Function<? super T, ? extends Iterable<? extends R>> mapper) {
-        return () -> iteratorFlatMap(iterable.iterator(), t -> mapper.apply(t).iterator());
     }
 }

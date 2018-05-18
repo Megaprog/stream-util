@@ -91,6 +91,6 @@ public class StreamUtilTest {
 
     @Test
     public void testUncheckedResutl() throws Exception {
-        assertNull(wannaFunc((a) -> StreamUtil.uncheckedResult(() -> method(1, "1"))));
+        assertNull(wannaFunc((a) -> StreamUtil.uncheckedNull(() -> method(1, "1"))));
     }
 }
