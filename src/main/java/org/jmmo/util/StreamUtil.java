@@ -193,7 +193,7 @@ public class StreamUtil {
      * @param <T> return value type
      * @return null value of T type
      */
-    public static <T> T result(Runnable runnable) {
+    public static <T> T resultNull(Runnable runnable) {
         runnable.run();
         return null;
     }

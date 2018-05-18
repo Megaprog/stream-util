@@ -86,7 +86,7 @@ public class StreamUtilTest {
 
     @Test
     public void testResutl() throws Exception {
-        assertNull(wannaFunc((a) -> StreamUtil.result(() -> {})));
+        assertNull(wannaFunc((a) -> StreamUtil.resultNull(() -> {})));
     }
 
     @Test
