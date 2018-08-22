@@ -7,7 +7,22 @@ package org.jmmo.util;
 public class BreakException extends RuntimeException {
     private static final long serialVersionUID = -2240548921330074632L;
 
+    private final Object value;
+
     public BreakException() {
-        super("Break", null, false, false);
+        this(null);
+    }
+
+    public BreakException(Object value) {
+        this("Break", value);
+    }
+
+    public BreakException(String message, Object value) {
+        super(message, null, false, false);
+        this.value = value;
+    }
+
+    public Object getValue() {
+        return value;
     }
 }
