@@ -3,7 +3,9 @@ package org.jmmo.util;
 import org.jmmo.util.impl.FilesIterator;
 
 import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
@@ -91,7 +93,7 @@ public class StreamUtil {
      * Finds files within a given directory and its subdirectories.
      */
     public static Stream<Path> files(Path directory) {
-        return fromIterator(new FilesIterator(directory), Spliterator.NONNULL);
+        return fromIterator(new FilesIterator(directory), Spliterator.NONNULL).filter(path -> !Files.isDirectory(path));
     }
 
     /**
@@ -99,7 +101,9 @@ public class StreamUtil {
      * The files are filtered by matching the String representation of their file names against the given globbing pattern.
      */
     public static Stream<Path> files(Path directory, String glob) {
-        return fromIterator(new FilesIterator(directory, glob), Spliterator.NONNULL);
+        final PathMatcher matcher = directory.getFileSystem().getPathMatcher("glob:" + glob);
+        return fromIterator(new FilesIterator(directory, path -> Files.isDirectory(path) || matcher.matches(path.getFileName())), Spliterator.NONNULL)
+                .filter(path -> !Files.isDirectory(path));
     }
 
     /**
@@ -107,7 +111,55 @@ public class StreamUtil {
      * The files are filtered by the given filter
      */
     public static Stream<Path> files(Path directory, DirectoryStream.Filter<Path> filter) {
-        return fromIterator(new FilesIterator(filter, directory), Spliterator.NONNULL);
+        return fromIterator(new FilesIterator(directory, path -> Files.isDirectory(path) || filter.accept(path)), Spliterator.NONNULL).filter(path -> !Files.isDirectory(path));
+    }
+
+    /**
+     * Finds directories within a given directory and its subdirectories.
+     */
+    public static Stream<Path> directories(Path directory) {
+        return fromIterator(new FilesIterator(directory, Files::isDirectory), Spliterator.NONNULL);
+    }
+
+    /**
+     * Finds directories within a given directory and its subdirectories.
+     * The files are filtered by matching the String representation of their file names against the given globbing pattern.
+     */
+    public static Stream<Path> directories(Path directory, String glob) {
+        final PathMatcher matcher = directory.getFileSystem().getPathMatcher("glob:" + glob);
+        return fromIterator(new FilesIterator(directory, path -> Files.isDirectory(path) && matcher.matches(path.getFileName())), Spliterator.NONNULL);
+    }
+
+    /**
+     * Finds directories within a given directory and its subdirectories.
+     * The files are filtered by the given filter
+     */
+    public static Stream<Path> directories(Path directory, DirectoryStream.Filter<Path> filter) {
+        return fromIterator(new FilesIterator(directory, path -> Files.isDirectory(path) && filter.accept(path)), Spliterator.NONNULL);
+    }
+
+    /**
+     * Finds directories within a given directory and its subdirectories.
+     */
+    public static Stream<Path> directoriesAndFiles(Path directory) {
+        return fromIterator(new FilesIterator(directory), Spliterator.NONNULL);
+    }
+
+    /**
+     * Finds directories and files within a given directory and its subdirectories.
+     * The files are filtered by matching the String representation of their file names against the given globbing pattern.
+     */
+    public static Stream<Path> directoriesAndFiles(Path directory, String glob) {
+        final PathMatcher matcher = directory.getFileSystem().getPathMatcher("glob:" + glob);
+        return fromIterator(new FilesIterator(directory, path -> matcher.matches(path.getFileName())), Spliterator.NONNULL);
+    }
+
+    /**
+     * Finds directories and files within a given directory and its subdirectories.
+     * The files are filtered by the given filter
+     */
+    public static Stream<Path> directoriesAndFiles(Path directory, DirectoryStream.Filter<Path> filter) {
+        return fromIterator(new FilesIterator(directory, filter), Spliterator.NONNULL);
     }
 
     /**

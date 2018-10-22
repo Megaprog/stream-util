@@ -4,58 +4,38 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
-import java.util.function.Function;
 
 public class FilesIterator implements Iterator<Path> {
-    private final Function<Path, DirectoryStream<Path>> directoryStreamFunction;
+    private final Path root;
+    private final DirectoryStream.Filter<Path> filter;
     private final LinkedList<Path> directories = new LinkedList<>();
     private DirectoryStream<Path> currentStream;
     private Iterator<Path> currentIterator;
-    boolean prepared;
-    Path current;
+    private boolean prepared;
+    protected Path current;
+    protected Path lastDirectory;
 
-    public FilesIterator(Path directory, Function<Path, DirectoryStream<Path>> directoryStreamFunction) {
-        this.directoryStreamFunction = directoryStreamFunction;
+    public FilesIterator(Path directory) {
+        this(directory, (path) -> true);
+    }
+
+    public FilesIterator(Path directory, DirectoryStream.Filter<Path> filter) {
+        this.root = directory;
+        this.filter = filter;
         initStream(directory);
     }
 
-    public FilesIterator(Path directory) {
-        this(directory, (path) -> {
-            try {
-                return Files.newDirectoryStream(path);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
-    public FilesIterator(Path directory, String glob) {
-        this(new DirectoryStream.Filter<Path>() {
-            final PathMatcher matcher = directory.getFileSystem().getPathMatcher("glob:" + glob);
-            @Override
-            public boolean accept(Path entry) {
-                return matcher.matches(entry.getFileName());
-            }
-        }, directory);
-    }
-
-    public FilesIterator(DirectoryStream.Filter<Path> filter, Path directory) {
-        this(directory, (path) -> {
-            try {
-                return Files.newDirectoryStream(path, entry -> Files.isDirectory(entry) || filter.accept(entry));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
     protected void initStream(Path directory) {
-        currentStream = directoryStreamFunction.apply(directory);
+        try {
+            currentStream = Files.newDirectoryStream(directory, filter);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         currentIterator = currentStream.iterator();
+        lastDirectory = directory;
     }
 
     @Override
@@ -70,21 +50,36 @@ public class FilesIterator implements Iterator<Path> {
                     prepared = true;
                 }
             } else {
-                try {
-                    currentStream.close();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-
-                if (directories.isEmpty()) {
-                    prepared = true;
+                if (lastDirectory == null) {
+                    pollNextDirectory();
                 } else {
-                    initStream(directories.poll());
+                    closeStream();
+                    if (!root.equals(lastDirectory)) {
+                        current = lastDirectory;
+                        prepared = true;
+                    }
+                    lastDirectory = null;
                 }
             }
         }
 
         return current != null;
+    }
+
+    protected void pollNextDirectory() {
+        if (directories.isEmpty()) {
+            prepared = true;
+        } else {
+            initStream(directories.poll());
+        }
+    }
+
+    protected void closeStream() {
+        try {
+            currentStream.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
@@ -51,8 +53,35 @@ public class StreamUtilTest {
         final Path dir = Paths.get("target", "test-classes", "files");
 
         final Stream<Path> files = StreamUtil.files(dir, "*.txt");
+        final List<Path> filesList = files.collect(Collectors.toList());
+        assertThat(filesList, containsInAnyOrder(dir.resolve("text.txt"), dir.resolve("sub").resolve("sub.txt")));
+    }
 
-        assertThat(files.collect(Collectors.toList()), containsInAnyOrder(dir.resolve("text.txt"), dir.resolve("sub").resolve("sub.txt")));
+    @Test
+    public void testDirectoriesAndFiles() throws Exception {
+        final Path dir = Paths.get("target", "test-classes", "files");
+
+        final Stream<Path> files = StreamUtil.directoriesAndFiles(dir, "sub*");
+        final List<Path> filesList = files.collect(Collectors.toList());
+        assertThat(filesList, containsInAnyOrder(dir.resolve("sub"), dir.resolve("sub").resolve("sub.txt")));
+    }
+
+    @Test
+    public void testDirectories() throws Exception {
+        final Path dir = Paths.get("target", "test-classes", "files");
+
+        final Stream<Path> files = StreamUtil.directories(dir);
+        final List<Path> filesList = files.collect(Collectors.toList());
+        assertThat(filesList, containsInAnyOrder(dir.resolve("sub")));
+    }
+
+    @Test
+    public void testDirectories_empty() throws Exception {
+        final Path dir = Paths.get("target", "test-classes", "files");
+
+        final Stream<Path> files = StreamUtil.directories(dir, "*.txt");
+        final List<Path> filesList = files.collect(Collectors.toList());
+        assertThat(filesList, empty());
     }
 
     void method(int a, String b) throws IOException, InterruptedException { }
