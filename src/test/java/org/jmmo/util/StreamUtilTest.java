@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.junit.Assert.assertEquals;
@@ -63,7 +64,7 @@ public class StreamUtilTest {
 
         final Stream<Path> files = StreamUtil.directoriesAndFiles(dir, "sub*");
         final List<Path> filesList = files.collect(Collectors.toList());
-        assertThat(filesList, containsInAnyOrder(dir.resolve("sub"), dir.resolve("sub").resolve("sub.txt")));
+        assertThat(filesList, contains(dir.resolve("sub").resolve("sub.txt"), dir.resolve("sub")));
     }
 
     @Test

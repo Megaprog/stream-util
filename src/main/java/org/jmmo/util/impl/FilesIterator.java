@@ -5,37 +5,34 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
 public class FilesIterator implements Iterator<Path> {
-    private final Path root;
     private final DirectoryStream.Filter<Path> filter;
-    private final LinkedList<Path> directories = new LinkedList<>();
     private DirectoryStream<Path> currentStream;
     private Iterator<Path> currentIterator;
     private boolean prepared;
     protected Path current;
-    protected Path lastDirectory;
+    protected DirectoryItem lastDirectory;
+    protected DirectoryItem directories;
 
     public FilesIterator(Path directory) {
         this(directory, (path) -> true);
     }
 
     public FilesIterator(Path directory, DirectoryStream.Filter<Path> filter) {
-        this.root = directory;
         this.filter = filter;
-        initStream(directory);
+        initStream(new DirectoryItem(directory, null));
     }
 
-    protected void initStream(Path directory) {
+    protected void initStream(DirectoryItem directoryItem) {
         try {
-            currentStream = Files.newDirectoryStream(directory, filter);
+            currentStream = Files.newDirectoryStream(directoryItem.directory, filter);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
         currentIterator = currentStream.iterator();
-        lastDirectory = directory;
+        lastDirectory = directoryItem;
     }
 
     @Override
@@ -45,21 +42,16 @@ public class FilesIterator implements Iterator<Path> {
             if (currentIterator.hasNext()) {
                 current = currentIterator.next();
                 if (Files.isDirectory(current)) {
-                    directories.add(current);
+                    directories = new DirectoryItem(current, directories);
                 } else {
                     prepared = true;
                 }
             } else {
-                if (lastDirectory == null) {
-                    pollNextDirectory();
-                } else {
+                if (!lastDirectory.processed) {
+                    lastDirectory.processed = true;
                     closeStream();
-                    if (!root.equals(lastDirectory)) {
-                        current = lastDirectory;
-                        prepared = true;
-                    }
-                    lastDirectory = null;
                 }
+                pollNextDirectory();
             }
         }
 
@@ -67,10 +59,14 @@ public class FilesIterator implements Iterator<Path> {
     }
 
     protected void pollNextDirectory() {
-        if (directories.isEmpty()) {
+        if (directories == null) {
             prepared = true;
+        } else if (directories.processed) {
+            current = directories.directory;
+            prepared = true;
+            directories = directories.next;
         } else {
-            initStream(directories.poll());
+            initStream(directories);
         }
     }
 
@@ -95,5 +91,16 @@ public class FilesIterator implements Iterator<Path> {
     @Override
     public void remove() {
         throw new UnsupportedOperationException();
+    }
+
+    static class DirectoryItem {
+        final Path directory;
+        final DirectoryItem next;
+        boolean processed;
+
+        DirectoryItem(Path directory, DirectoryItem next) {
+            this.directory = directory;
+            this.next = next;
+        }
     }
 }
