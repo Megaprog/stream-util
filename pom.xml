@@ -4,7 +4,7 @@
 
     <groupId>org.jmmo</groupId>
     <artifactId>stream-util</artifactId>
-    <version>1.14-SNAPSHOT</version>
+    <version>1.13-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Stream Utility</name>
