@@ -190,14 +190,6 @@ public class StreamUtil {
     }
 
     /**
-     * Runnable that throw some exception
-     */
-    @FunctionalInterface
-    public interface ThrowableRunnable {
-        void run() throws Exception;
-    }
-
-    /**
      * Prevent necessity to check exceptions from lambdas that don't return any result
      * @param runnable some lambda throwing checked exception
      */
@@ -229,9 +221,9 @@ public class StreamUtil {
     /**
      * Prevent necessity to check exceptions from lambdas that return some result and ignore result
      * @param callable some lambda throwing checked exception
-     * @param <R> ignored result type
+     * @param <T> ignored result type
      */
-    public static <R> void uncheckedVoid(Callable<R> callable) {
+    public static <T> void uncheckedVoid(Callable<T> callable) {
         try {
             callable.call();
         } catch (Exception ex) {
@@ -257,6 +249,62 @@ public class StreamUtil {
      */
     public static <T> void resultVoid(Supplier<T> supplier) {
         supplier.get();
+    }
+
+    /**
+     * Prevent interruption from lambdas that don't return any result
+     * @param interruptableSupplier some supplier throwing InterruptedException
+     */
+    public static <T> T uninterrupted(InterruptableSupplier<T> interruptableSupplier) {
+        boolean interrupted = false;
+        try {
+            while (true) {
+                try {
+                    return interruptableSupplier.get();
+                } catch (InterruptedException e) {
+                    interrupted = true;
+                }
+            }
+        } finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    /**
+     * Prevent interruption from lambdas that don't return any result
+     * @param interruptableRunnable some lambda throwing InterruptedException
+     */
+    public static void uninterrupted(InterruptableRunnable interruptableRunnable) {
+        uninterrupted(() -> {
+            interruptableRunnable.run();
+            return null;
+        });
+    }
+
+
+    /**
+     * Prevent necessity to check exceptions from lambdas that don't return any result,
+     * then return null of required type
+     * @param interruptableRunnable some lambda throwing InterruptedException
+     * @param <T> return value type
+     * @return null value of T type
+     */
+    public static <T> T uninterruptedNull(InterruptableRunnable interruptableRunnable) {
+        return uninterrupted(() -> {
+            interruptableRunnable.run();
+            return null;
+        });
+    }
+
+    /**
+     * Prevent necessity to check exceptions from lambdas that return some result and ignore result
+     * @param interruptableSupplier some supplier throwing InterruptedException
+     * @param <T> ignored result type
+     */
+    public static <T> void uninterruptedVoid(InterruptableSupplier<T> interruptableSupplier) {
+        uninterrupted(interruptableSupplier);
     }
 
     /**

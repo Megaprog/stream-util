@@ -13,4 +13,8 @@ public class LazyToString {
     public String toString() {
         return String.valueOf(supplier.get());
     }
+
+    public static LazyToString of(Supplier<?> supplier) {
+        return new LazyToString(supplier);
+    }
 }

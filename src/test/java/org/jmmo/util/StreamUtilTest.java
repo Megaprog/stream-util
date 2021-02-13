@@ -19,9 +19,7 @@ import java.util.stream.Stream;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class StreamUtilTest {
 
@@ -106,8 +104,8 @@ public class StreamUtilTest {
     public void testLazyToString() throws Exception {
         assertEquals("-ok-", MessageFormat.format("-{0}-", new LazyToString(() -> "ok")));
         assertEquals("-5-", MessageFormat.format("-{0}-", new LazyToString(() -> 5)));
-        assertEquals("-true-", MessageFormat.format("-{0}-", new LazyToString(() -> true)));
-        assertEquals("-null-", MessageFormat.format("-{0}-", new LazyToString(() -> null)));
+        assertEquals("-true-", MessageFormat.format("-{0}-", LazyToString.of(() -> true)));
+        assertEquals("-null-", MessageFormat.format("-{0}-", LazyToString.of(() -> null)));
     }
 
     String wannaFunc(Function<Integer, String> function) {
@@ -115,12 +113,45 @@ public class StreamUtilTest {
     }
 
     @Test
-    public void testResutl() throws Exception {
+    public void testResult() throws Exception {
         assertNull(wannaFunc((a) -> StreamUtil.resultNull(() -> {})));
     }
 
     @Test
-    public void testUncheckedResutl() throws Exception {
+    public void testUncheckedResult() throws Exception {
         assertNull(wannaFunc((a) -> StreamUtil.uncheckedNull(() -> method(1, "1"))));
+    }
+
+    @Test
+    public void uninterrupted_run() {
+        StreamUtil.uninterrupted(() -> Thread.sleep(1));
+    }
+
+    @Test
+    public void uninterrupted_get() {
+        int v =  StreamUtil.uninterrupted(() -> {Thread.sleep(1); return 1;});
+        assertEquals(1, v);
+    }
+
+    @Test
+    public void uninterrupted() throws InterruptedException {
+        int[] intHolder = new int[1];
+        boolean[] boolHolder = new boolean[1];
+        Throwable[] throwableHolder = new Throwable[1];
+
+        Thread thread = new Thread(() -> {
+            int v =  StreamUtil.uninterrupted(() -> {Thread.sleep(100); return 1;});
+            intHolder[0] = v;
+            boolHolder[0] = Thread.interrupted();
+        });
+        thread.setUncaughtExceptionHandler((t, e) -> throwableHolder[0] = e);
+
+        thread.start();
+        thread.interrupt();
+        thread.join();
+
+        assertEquals(1, intHolder[0]);
+        assertNull(throwableHolder[0]);
+        assertTrue(boolHolder[0]);
     }
 }
