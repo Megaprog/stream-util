@@ -32,8 +32,14 @@ public void testUnchecked_Throw() throws Exception {
 }
 ```
 
+To wrap lambdas throws InterruptedException:
+ 
+```java
+StreamUtil.uninterrupted(() -> Thread.sleep(1));
+```
+
 To logging expensive expressions:
  
 ```java
-log.debug("Debugging of {}", new LazyToString(() -> "some expensive expression"));
+log.debug("Debugging of {}", LazyToString.of(() -> "some expensive expression"));
 ```
